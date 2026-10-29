@@ -1,4 +1,4 @@
-package com.ujaen.cuadramed.security;
+package com.ujaen.cuadramed.seguridad;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -23,7 +23,7 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String email, String rol, Long id) {
+    public String generateToken(Long id, String rol, String email) {
         return Jwts.builder()
                 .subject(email)
                 .claim("rol", rol)
