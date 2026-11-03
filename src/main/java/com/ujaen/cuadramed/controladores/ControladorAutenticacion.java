@@ -6,10 +6,7 @@ import com.ujaen.cuadramed.service.ServicioAutenticacion;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -23,5 +20,10 @@ public class ControladorAutenticacion {
         RespuestaAutenticacionDTO respuesta = servicioAutenticacion.login(peticion);
 
         return ResponseEntity.ok(respuesta);
+    }
+
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping(){
+        return ResponseEntity.ok("pong");
     }
 }
