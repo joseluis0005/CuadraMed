@@ -54,4 +54,8 @@ public class JwtUtils {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+    public String getRolFromToken(String token) {
+        return getClaims(token).get("rol", String.class);
+    }
 }

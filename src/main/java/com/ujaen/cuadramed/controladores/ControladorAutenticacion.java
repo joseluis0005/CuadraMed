@@ -3,9 +3,11 @@ package com.ujaen.cuadramed.controladores;
 import com.ujaen.cuadramed.dto.LoginDTO;
 import com.ujaen.cuadramed.dto.RespuestaAutenticacionDTO;
 import com.ujaen.cuadramed.service.ServicioAutenticacion;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +19,7 @@ public class ControladorAutenticacion {
     ServicioAutenticacion servicioAutenticacion;
 
     @PostMapping("/login")
-    public ResponseEntity<RespuestaAutenticacionDTO> login(LoginDTO peticion){
+    public ResponseEntity<RespuestaAutenticacionDTO> login(@Valid @RequestBody LoginDTO peticion){
         RespuestaAutenticacionDTO respuesta = servicioAutenticacion.login(peticion);
 
         return ResponseEntity.ok(respuesta);
