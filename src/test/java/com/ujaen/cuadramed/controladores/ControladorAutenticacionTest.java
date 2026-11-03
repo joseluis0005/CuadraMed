@@ -41,4 +41,34 @@ public class ControladorAutenticacionTest {
                 .andExpect(jsonPath("$.token").exists())
                 .andExpect(jsonPath("$.rol").value("ADMINISTRADOR"));
     }
+
+    @Test
+    void loginConPasswordIncorrectaDebeDenegarAcceso() throws Exception {
+        String peticionJSON = """
+            {
+              "email": "admin@cuadramed.es",
+              "password": "password_incorrecta"
+            }
+            """;
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(peticionJSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void loginConFormatoEmailInvalidoDebeDevolverBadRequest() throws Exception {
+        String peticionJSON = """
+                {
+                  "email": "email_sin_formato",
+                  "password": "admin123"
+                }
+                """;
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(peticionJSON))
+                .andExpect(status().isBadRequest());
+    }
 }
