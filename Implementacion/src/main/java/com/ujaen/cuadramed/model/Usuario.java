@@ -33,6 +33,9 @@ public class Usuario {
     @NotBlank
     private String contrasena;
 
+    @Column(nullable = false)
+    private boolean activo;
+
     //Métodos
     protected Usuario() { }
 
@@ -42,6 +45,7 @@ public class Usuario {
         this.email = email;
         this.contrasena = contrasena;
         this.rol = rol;
+        this.activo = true;
     }
 
 
