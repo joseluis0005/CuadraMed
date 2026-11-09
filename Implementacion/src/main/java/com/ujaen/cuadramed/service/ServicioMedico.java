@@ -33,8 +33,9 @@ public class ServicioMedico {
     }
 
     public List<Usuario> listarMedicos(){
-        return new ArrayList<>(repositorioUsuario.findAll());
+        return repositorioUsuario.findAll();
     }
+
 
     public List<Usuario> listarMedicosActivos(){
         return new ArrayList<>(repositorioUsuario.findByActivoTrue());

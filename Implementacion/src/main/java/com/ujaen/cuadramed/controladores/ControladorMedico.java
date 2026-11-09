@@ -3,15 +3,16 @@ package com.ujaen.cuadramed.controladores;
 import com.ujaen.cuadramed.dto.LoginDTO;
 import com.ujaen.cuadramed.dto.RegistroDTO;
 import com.ujaen.cuadramed.dto.RespuestaAutenticacionDTO;
+import com.ujaen.cuadramed.dto.UsuarioDTO;
 import com.ujaen.cuadramed.model.Usuario;
 import com.ujaen.cuadramed.service.ServicioAutenticacion;
 import com.ujaen.cuadramed.service.ServicioMedico;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/medico")
@@ -32,5 +33,12 @@ public class ControladorMedico {
         LoginDTO nuevoLogin = new LoginDTO(usuarioARegistrar.getEmail(), usuarioARegistrar.getContrasena());
 
         return servicioAutenticacion.login(nuevoLogin);
+    }
+
+    @GetMapping
+    List<UsuarioDTO> listarMedicos() {
+        return servicioMedico.listarMedicos().stream()
+                .map(UsuarioDTO::desde)
+                .toList();
     }
 }
