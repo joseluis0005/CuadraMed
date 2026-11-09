@@ -22,7 +22,7 @@ public class ControladorMedico {
     @Autowired
     ServicioMedico servicioMedico;
 
-    @PostMapping("/api/registro")
+    @PostMapping("/alta")
     RespuestaAutenticacionDTO altaMedico(@Valid @RequestBody RegistroDTO peticion){
         Usuario usuarioARegistrar = servicioAutenticacion.registro(peticion);
 
