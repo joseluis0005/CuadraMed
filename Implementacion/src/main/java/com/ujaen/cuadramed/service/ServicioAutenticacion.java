@@ -1,8 +1,10 @@
 package com.ujaen.cuadramed.service;
 
 import com.ujaen.cuadramed.dto.LoginDTO;
+import com.ujaen.cuadramed.dto.RegistroDTO;
 import com.ujaen.cuadramed.dto.RespuestaAutenticacionDTO;
 import com.ujaen.cuadramed.excepciones.CredencialesInvalidasExcep;
+import com.ujaen.cuadramed.model.Rol;
 import com.ujaen.cuadramed.model.Usuario;
 import com.ujaen.cuadramed.repository.UsuarioRepository;
 import com.ujaen.cuadramed.seguridad.JwtUtils;
@@ -45,5 +47,11 @@ public class ServicioAutenticacion {
         String token = jwtUtils.generateToken(usuario.getId(), usuario.getRol().name(), usuario.getEmail());
 
         return new RespuestaAutenticacionDTO(usuario.getId(),usuario.getRol(),token);
+    }
+
+    public Usuario registro(@Valid RegistroDTO registroDTO){
+        String contrasenaEncriptada = passwordEncoder.encode(registroDTO.contrasena());
+        Usuario nuevoUsuario = new Usuario(registroDTO.nombre(), registroDTO.telefono(), registroDTO.email(),contrasenaEncriptada, Rol.MEDICO);
+        return nuevoUsuario;
     }
 }
