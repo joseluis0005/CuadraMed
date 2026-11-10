@@ -36,11 +36,9 @@ public class ServicioMedico {
         return repositorioUsuario.findAll();
     }
 
-
     public List<Usuario> listarMedicosActivos(){
         return new ArrayList<>(repositorioUsuario.findByActivoTrue());
     }
-
 
     public Usuario actualizar(Long id, Usuario datos) {
         Usuario medico = buscarMedico(id);
@@ -59,6 +57,4 @@ public class ServicioMedico {
     public void darDeBaja(Long id) {
         buscarMedico(id).setActivo(false);
     }
-
-
 }
