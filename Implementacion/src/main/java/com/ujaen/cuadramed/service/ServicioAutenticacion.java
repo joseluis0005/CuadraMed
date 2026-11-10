@@ -44,9 +44,9 @@ public class ServicioAutenticacion {
             throw new CredencialesInvalidasExcep("El usuario o la contraseña no son válidos");
         }
 
-        String token = jwtUtils.generateToken(usuario.getId(), usuario.getRol().name(), usuario.getEmail());
+        String token = jwtUtils.generateToken(usuario.getId(), usuario.getRoles(), usuario.getEmail());
 
-        return new RespuestaAutenticacionDTO(usuario.getId(),usuario.getRol(),token);
+        return new RespuestaAutenticacionDTO(usuario.getId(),usuario.getRoles(),token);
     }
 
     public Usuario registro(@Valid RegistroDTO registroDTO){

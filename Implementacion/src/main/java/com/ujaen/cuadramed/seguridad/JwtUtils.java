@@ -1,5 +1,6 @@
 package com.ujaen.cuadramed.seguridad;
 
+import com.ujaen.cuadramed.model.Rol;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Set;
 
 @Component
 public class JwtUtils {
@@ -23,10 +25,10 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(Long id, String rol, String email) {
+    public String generateToken(Long id, Set<Rol> roles, String email) {
         return Jwts.builder()
                 .subject(email)
-                .claim("rol", rol)
+                .claim("roles", roles.stream().map(Rol::name).toList())
                 .claim("id", id)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))

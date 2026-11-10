@@ -1,5 +1,6 @@
 package com.ujaen.cuadramed.repository;
 
+import com.ujaen.cuadramed.model.Rol;
 import com.ujaen.cuadramed.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,4 +14,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
     boolean existsByEmail(String email);
     List<Usuario> findByActivoTrue();
     boolean existsByEmailAndId(String email, Long id);
+
+    List<Usuario> findByRolesContaining(Rol rol);
 }

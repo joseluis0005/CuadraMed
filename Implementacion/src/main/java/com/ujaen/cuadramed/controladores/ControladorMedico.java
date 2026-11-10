@@ -10,6 +10,7 @@ import com.ujaen.cuadramed.service.ServicioMedico;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class ControladorMedico {
     @Autowired
     ServicioMedico servicioMedico;
 
+    @PreAuthorize("hasRole('PLANIFICADOR')")
     @PostMapping("/alta")
     public RespuestaAutenticacionDTO altaMedico(@Valid @RequestBody RegistroDTO peticion){
         Usuario usuarioARegistrar = servicioAutenticacion.registro(peticion);
@@ -36,6 +38,7 @@ public class ControladorMedico {
         return servicioAutenticacion.login(nuevoLogin);
     }
 
+    @PreAuthorize("hasRole('PLANIFICADOR')")
     @GetMapping
     public List<UsuarioDTO> listarMedicos() {
         return servicioMedico.listarMedicos().stream()
@@ -43,6 +46,7 @@ public class ControladorMedico {
                 .toList();
     }
 
+    @PreAuthorize("hasRole('PLANIFICADOR')")
     @PutMapping("/{id}/baja")
     public ResponseEntity<Void> bajaMedico(@PathVariable Long id){
         servicioMedico.darDeBaja(id);

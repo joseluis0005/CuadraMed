@@ -22,18 +22,17 @@ public class ServicioMedico {
     private Usuario buscarMedico(Long id) {
         Usuario u = repositorioUsuario.findById(id)
                 .orElseThrow(() -> new MedicoNoEncontradoExcep("id"));
-        if (!Rol.MEDICO.equals(u.getRol())) {
+        if (u.tieneRol(Rol.MEDICO)) {
             throw new MedicoNoEncontradoExcep("id");
         }
         return u;
     }
-
     public void anadirMedico(@Valid Usuario medico){
         repositorioUsuario.save(medico);
     }
 
     public List<Usuario> listarMedicos(){
-        return repositorioUsuario.findAll();
+        return repositorioUsuario.findByRolesContaining((Rol.MEDICO));
     }
 
     public List<Usuario> listarMedicosActivos(){
@@ -43,7 +42,7 @@ public class ServicioMedico {
     public Usuario actualizar(Long id, Usuario datos) {
         Usuario medico = buscarMedico(id);
 
-        if (repositorioUsuario.existsByEmailAndId(datos.getEmail(), id)) {
+        if (!repositorioUsuario.existsByEmailAndId(datos.getEmail(), id)) {
             throw new EmailYaRegistradoExcep(datos.getEmail());
         }
 
