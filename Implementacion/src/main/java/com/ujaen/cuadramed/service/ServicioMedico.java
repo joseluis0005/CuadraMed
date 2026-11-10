@@ -1,7 +1,7 @@
 package com.ujaen.cuadramed.service;
 
 import com.ujaen.cuadramed.excepciones.EmailYaRegistradoExcep;
-import com.ujaen.cuadramed.excepciones.MedicoNoEcontradoExcep;
+import com.ujaen.cuadramed.excepciones.MedicoNoEncontradoExcep;
 import com.ujaen.cuadramed.model.Rol;
 import com.ujaen.cuadramed.model.Usuario;
 import com.ujaen.cuadramed.repository.UsuarioRepository;
@@ -21,9 +21,9 @@ public class ServicioMedico {
 
     private Usuario buscarMedico(Long id) {
         Usuario u = repositorioUsuario.findById(id)
-                .orElseThrow(() -> new MedicoNoEcontradoExcep("id"));
+                .orElseThrow(() -> new MedicoNoEncontradoExcep("id"));
         if (!Rol.MEDICO.equals(u.getRol())) {
-            throw new MedicoNoEcontradoExcep("id");
+            throw new MedicoNoEncontradoExcep("id");
         }
         return u;
     }
