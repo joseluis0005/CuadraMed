@@ -1,8 +1,15 @@
 package com.ujaen.cuadramed.seguridad;
 
+import com.ujaen.cuadramed.model.Rol;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,18 +24,21 @@ class JwtUtilsTest {
         ReflectionTestUtils.setField(jwtUtils, "jwtExpirationMs", 86400000L);
     }
 
+
+
     @Test
     void debeGenerarYValidarTokenCorrectamente() {
-        String token = jwtUtils.generateToken(1L, "ADMINISTRADOR", "admin@cuadramed.es");
+        String token = jwtUtils.generateToken(1L, new HashSet<>(Arrays.asList(Rol.ADMINISTRADOR)), "admin@cuadramed.es");
         assertNotNull(token);
         assertTrue(jwtUtils.validateToken(token));
     }
 
     @Test
-    void debeExtraerEmailYRolDelToken() {
-        String token = jwtUtils.generateToken(1L, "ADMINISTRADOR", "admin@cuadramed.es");
-        assertEquals("admin@cuadramed.es", jwtUtils.getEmailFromToken(token));
-        assertEquals("ADMINISTRADOR", jwtUtils.getRolFromToken(token));
+    void debeExtraerEmailYRolesDelToken() {
+        String token = jwtUtils.generateToken(1L, Set.of(Rol.PLANIFICADOR, Rol.MEDICO), "responsable@cuadramed.es");
+
+        assertEquals("responsable@cuadramed.es", jwtUtils.getEmailFromToken(token));
+        assertEquals(Set.of(Rol.PLANIFICADOR, Rol.MEDICO), jwtUtils.getRolesFromToken(token));
     }
 
     @Test

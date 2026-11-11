@@ -27,15 +27,10 @@ public class ControladorMedico {
 
     @PreAuthorize("hasRole('PLANIFICADOR')")
     @PostMapping("/alta")
-    public RespuestaAutenticacionDTO altaMedico(@Valid @RequestBody RegistroDTO peticion){
+    public ResponseEntity<UsuarioDTO> altaMedico(@Valid @RequestBody RegistroDTO peticion){
         Usuario usuarioARegistrar = servicioAutenticacion.registro(peticion);
-
-        servicioMedico.anadirMedico(usuarioARegistrar);
-
-        usuarioARegistrar.setContrasena(peticion.contrasena());
-        LoginDTO nuevoLogin = new LoginDTO(usuarioARegistrar.getEmail(), usuarioARegistrar.getContrasena());
-
-        return servicioAutenticacion.login(nuevoLogin);
+        UsuarioDTO usuarioDTO = UsuarioDTO.desde(usuarioARegistrar);
+        return ResponseEntity.ok(usuarioDTO);
     }
 
     @PreAuthorize("hasRole('PLANIFICADOR')")
@@ -51,5 +46,13 @@ public class ControladorMedico {
     public ResponseEntity<Void> bajaMedico(@PathVariable Long id){
         servicioMedico.darDeBaja(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('PLANIFICADOR')")
+    @GetMapping("/{id}/consulta")
+    public ResponseEntity<UsuarioDTO> consultaMedico(@PathVariable Long id){
+        Usuario user = servicioMedico.buscarMedico(id);
+        UsuarioDTO dto = UsuarioDTO.desde(user);
+        return ResponseEntity.ok(dto);
     }
 }

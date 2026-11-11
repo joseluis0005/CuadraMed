@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.cert.CertificateRevokedException;
+import java.util.Set;
 
 @Service
 public class ServicioAutenticacion {
@@ -30,18 +31,20 @@ public class ServicioAutenticacion {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ServicioMedico servicioMedico;
+
 
     public RespuestaAutenticacionDTO login(@Valid LoginDTO loginDTO){
-        String emailUsuario = loginDTO.email();
-
-        if(!repositorioUsuario.existsByEmail(emailUsuario)){
-            throw new CredencialesInvalidasExcep("El usuario o la contraseña no son válidos");
-        }
-
-        Usuario usuario = repositorioUsuario.findByEmail(emailUsuario).get();
+        Usuario usuario = repositorioUsuario.findByEmail(loginDTO.email())
+                .orElseThrow(() -> new CredencialesInvalidasExcep("El usuario o la contraseña no son válidos"));
 
         if(!passwordEncoder.matches(loginDTO.password(), usuario.getContrasena())){
             throw new CredencialesInvalidasExcep("El usuario o la contraseña no son válidos");
+        }
+
+        if (!usuario.isActivo()) {
+            throw new CredencialesInvalidasExcep("El usuario no se encuentra activo");
         }
 
         String token = jwtUtils.generateToken(usuario.getId(), usuario.getRoles(), usuario.getEmail());
@@ -51,7 +54,8 @@ public class ServicioAutenticacion {
 
     public Usuario registro(@Valid RegistroDTO registroDTO){
         String contrasenaEncriptada = passwordEncoder.encode(registroDTO.contrasena());
-        Usuario nuevoUsuario = new Usuario(registroDTO.nombre(), registroDTO.telefono(), registroDTO.email(),contrasenaEncriptada, Rol.MEDICO);
+        Usuario nuevoUsuario = new Usuario(registroDTO.nombre(), registroDTO.telefono(), registroDTO.email(),contrasenaEncriptada, Set.of(Rol.MEDICO));
+        servicioMedico.anadirMedico(nuevoUsuario);
         return nuevoUsuario;
     }
 }

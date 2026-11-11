@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
@@ -57,7 +59,10 @@ public class JwtUtils {
                 .getPayload();
     }
 
-    public String getRolFromToken(String token) {
-        return getClaims(token).get("rol", String.class);
+    public Set<Rol> getRolesFromToken(String token) {
+        List<String> roles = getClaims(token).get("roles", List.class);
+        return roles.stream()
+                .map(Rol::valueOf)
+                .collect(Collectors.toSet());
     }
 }

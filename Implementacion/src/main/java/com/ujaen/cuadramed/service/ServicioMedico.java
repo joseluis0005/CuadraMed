@@ -19,15 +19,18 @@ public class ServicioMedico {
     @Autowired
     private UsuarioRepository repositorioUsuario;
 
-    private Usuario buscarMedico(Long id) {
+    public Usuario buscarMedico(Long id) {
         Usuario u = repositorioUsuario.findById(id)
                 .orElseThrow(() -> new MedicoNoEncontradoExcep("id"));
-        if (u.tieneRol(Rol.MEDICO)) {
+        if (!u.tieneRol(Rol.MEDICO)) {
             throw new MedicoNoEncontradoExcep("id");
         }
         return u;
     }
     public void anadirMedico(@Valid Usuario medico){
+        if(repositorioUsuario.existsByEmail(medico.getEmail())){
+            throw new EmailYaRegistradoExcep(medico.getEmail());
+        }
         repositorioUsuario.save(medico);
     }
 
@@ -42,7 +45,7 @@ public class ServicioMedico {
     public Usuario actualizar(Long id, Usuario datos) {
         Usuario medico = buscarMedico(id);
 
-        if (!repositorioUsuario.existsByEmailAndId(datos.getEmail(), id)) {
+        if (repositorioUsuario.existsByEmailAndId(datos.getEmail(), id)) {
             throw new EmailYaRegistradoExcep(datos.getEmail());
         }
 
@@ -56,4 +59,5 @@ public class ServicioMedico {
     public void darDeBaja(Long id) {
         buscarMedico(id).setActivo(false);
     }
+
 }

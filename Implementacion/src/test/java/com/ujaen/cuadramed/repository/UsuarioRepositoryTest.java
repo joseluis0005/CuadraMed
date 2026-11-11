@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,19 +21,19 @@ class UsuarioRepositoryTest {
 
     @Test
     void debeGuardarYBuscarUsuarioPorEmail() {
-        Usuario usuario = new Usuario("Test User", "600000000", "test@cuadramed.es", "pass123", Rol.MEDICO);
+        Usuario usuario = new Usuario("Test User", "600000000", "test@cuadramed.es", "pass123", new HashSet<>(Arrays.asList(Rol.MEDICO)));
         usuarioRepository.save(usuario);
 
         Optional<Usuario> encontrado = usuarioRepository.findByEmail("test@cuadramed.es");
 
         assertTrue(encontrado.isPresent());
         assertEquals("Test User", encontrado.get().getNombre());
-        assertEquals(Rol.MEDICO, encontrado.get().getRol());
+        assertTrue(encontrado.get().getRoles().contains(Rol.MEDICO));
     }
 
     @Test
     void debeVerificarSiExisteEmail() {
-        Usuario usuario = new Usuario("Test User", "600000000", "existe@cuadramed.es", "pass123", Rol.MEDICO);
+        Usuario usuario = new Usuario("Test User", "600000000", "existe@cuadramed.es", "pass123", new HashSet<>(Arrays.asList(Rol.MEDICO)));
         usuarioRepository.save(usuario);
 
         assertTrue(usuarioRepository.existsByEmail("existe@cuadramed.es"));
@@ -40,8 +42,8 @@ class UsuarioRepositoryTest {
 
     @Test
     void debeFiltrarSoloMedicosActivos() {
-        Usuario medicoActivo = new Usuario("Médico Activo", "600111222", "activo@cuadramed.es", "pass", Rol.MEDICO);
-        Usuario medicoInactivo = new Usuario("Médico Inactivo", "600333444", "inactivo@cuadramed.es", "pass", Rol.MEDICO);
+        Usuario medicoActivo = new Usuario("Médico Activo", "600111222", "activo@cuadramed.es", "pass", new HashSet<>(Arrays.asList(Rol.MEDICO)));
+        Usuario medicoInactivo = new Usuario("Médico Inactivo", "600333444", "inactivo@cuadramed.es", "pass", new HashSet<>(Arrays.asList(Rol.MEDICO)));
         medicoInactivo.setActivo(false);
 
         usuarioRepository.save(medicoActivo);
@@ -55,7 +57,7 @@ class UsuarioRepositoryTest {
 
     @Test
     void debeVerificarSiExisteEmailEnOtroId() {
-        Usuario usuario1 = usuarioRepository.save(new Usuario("User 1", "600111222", "u1@cuadramed.es", "pass", Rol.MEDICO));
+        Usuario usuario1 = usuarioRepository.save(new Usuario("User 1", "600111222", "u1@cuadramed.es", "pass", new HashSet<>(Arrays.asList(Rol.MEDICO))));
 
         assertTrue(usuarioRepository.existsByEmailAndId("u1@cuadramed.es", usuario1.getId()));
         assertFalse(usuarioRepository.existsByEmailAndId("u1@cuadramed.es", 999L));

@@ -20,12 +20,6 @@ public class ControladorAutenticacionTest {
     private MockMvc mockMvc;
 
     @Test
-    void endpointResponde() throws Exception {
-        mockMvc.perform(get("/api/auth/ping"))   // pon aquí una ruta tuya real
-                .andExpect(status().isOk());
-    }
-
-    @Test
     void endPointLogin() throws Exception {
         String peticionJSON = """
                 {
