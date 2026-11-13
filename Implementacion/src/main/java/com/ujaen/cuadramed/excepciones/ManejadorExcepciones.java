@@ -27,4 +27,22 @@ public class ManejadorExcepciones {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", e.getMessage()));
     }
+
+    @ExceptionHandler({GrupoNoEncontradoExcep.class, MedicoNoEnGrupoExcep.class})
+    public ResponseEntity<Map<String, String>> grupoNoEncontrado(RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", e.getMessage()));
+    }
+
+    @ExceptionHandler({GrupoYaExistenteExcep.class, MedicoYaEnGrupoExcep.class})
+    public ResponseEntity<Map<String, String>> conflictoGrupo(RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", e.getMessage()));
+    }
+
+    @ExceptionHandler(UsuarioNoEsMedicoExcep.class)
+    public ResponseEntity<Map<String, String>> usuarioNoEsMedico(UsuarioNoEsMedicoExcep e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", e.getMessage()));
+    }
 }
