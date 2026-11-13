@@ -59,5 +59,4 @@ public class ServicioMedico {
     public void darDeBaja(Long id) {
         buscarMedico(id).setActivo(false);
     }
-
 }
