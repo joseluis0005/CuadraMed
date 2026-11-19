@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/grupo")
@@ -28,6 +29,15 @@ public class ControladorGrupo {
     public ResponseEntity<Void> bajaGrupo(@PathVariable Long id){
         servicioGrupo.eliminarGrupo(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','PLANIFICADOR')")
+    @GetMapping
+    public ResponseEntity<List<GrupoDTO>> listarGrupos() {
+        List<GrupoDTO> grupos = servicioGrupo.getGrupos().stream()
+                .map(GrupoDTO::desde)
+                .toList();
+        return ResponseEntity.ok(grupos);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','PLANIFICADOR')")

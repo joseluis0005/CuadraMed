@@ -12,6 +12,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ServicioGrupo {
     @Autowired
@@ -64,5 +66,9 @@ public class ServicioGrupo {
     private Usuario buscarUsuario(Long idMedico) {
         return repositorioUsuario.findById(idMedico)
                 .orElseThrow(() -> new MedicoNoEncontradoExcep("No se encontro el medico buscado"));
+    }
+
+    public List<Grupo> getGrupos(){
+        return repositorioGrupo.findAll();
     }
 }
