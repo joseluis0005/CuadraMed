@@ -29,9 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * responsable2@cuadramed.es (PLANIFICADOR + MEDICO), medico@cuadramed.es y medico2@cuadramed.es (MEDICO).
  */
 @SpringBootTest
-@ActiveProfiles("test") //BD H2 en memoria: no toca la de desarrollo
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
-@Transactional //Para que no se pisen unos tests con otros
+@Transactional
 public class ControladorGrupoTest {
 
     private static final long ID_INEXISTENTE = 9999L;

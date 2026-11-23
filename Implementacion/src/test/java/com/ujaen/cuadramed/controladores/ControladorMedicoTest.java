@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@Transactional //Para que no se pisen unos tests con otros
+@Transactional
 public class ControladorMedicoTest {
 
     @Autowired

@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * antes de llamar a la API desde el frontend, y Spring Security debe dejarla pasar.
  */
 @SpringBootTest
-@ActiveProfiles("test") //BD H2 en memoria: no toca la de desarrollo
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 class ConfigSeguridadCorsTest {
 
