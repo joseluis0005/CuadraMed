@@ -18,6 +18,8 @@ public class DataInitializer {
             crearSiNoExiste(repo, encoder, "Admin", "663465813","admin@cuadramed.es", "admin123", Set.of(Rol.ADMINISTRADOR));
             crearSiNoExiste(repo, encoder, "Ana Responsable", "643156843","responsable@cuadramed.es", "resp123", Set.of(Rol.PLANIFICADOR, Rol.MEDICO));
             crearSiNoExiste(repo, encoder, "Marcos Médico", "691345655","medico@cuadramed.es", "medico123", Set.of(Rol.MEDICO));
+            crearSiNoExiste(repo, encoder, "Laura Responsable", "622114477","responsable2@cuadramed.es", "resp123", Set.of(Rol.PLANIFICADOR, Rol.MEDICO));
+            crearSiNoExiste(repo, encoder, "Pedro Médico", "677889900","medico2@cuadramed.es", "medico123", Set.of(Rol.MEDICO));
         };
     }
 

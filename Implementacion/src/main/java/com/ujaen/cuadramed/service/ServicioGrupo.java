@@ -1,6 +1,7 @@
 package com.ujaen.cuadramed.service;
 
 import com.ujaen.cuadramed.excepciones.*;
+import com.ujaen.cuadramed.model.Especialidad;
 import com.ujaen.cuadramed.model.Grupo;
 import com.ujaen.cuadramed.model.Usuario;
 import com.ujaen.cuadramed.repository.GrupoRepository;
@@ -19,14 +20,31 @@ public class ServicioGrupo {
     @Autowired
     UsuarioRepository repositorioUsuario;
 
-    public Grupo anadirGrupo(Grupo grupo){
-        if(repositorioGrupo.existsByEspecialidad(grupo.getEspecialidad())){
+    private void comprobarPuedeSerResponsable(Grupo grupo, Usuario usuario){
+        if(repositorioGrupo.existsByResponsableId(usuario.getId())){
+            throw new ResponsableYaAsignadoExcep("Ese usuario ya es responsable de otro grupo");
+        }
+
+        comprobarNoEstaEnOtroGrupo(grupo, usuario);
+    }
+
+    private void comprobarNoEstaEnOtroGrupo(Grupo grupo, Usuario medico){
+        if(!grupo.getMiembros().contains(medico) && repositorioGrupo.existsByMiembrosId(medico.getId())){
+            throw new MedicoYaEnGrupoExcep("El medico ya pertenece a otro grupo");
+        }
+    }
+
+    @Transactional
+    public Grupo crearGrupo(String nombre, Especialidad especialidad, Long idResponsable){
+        if(repositorioGrupo.existsByEspecialidad(especialidad)){
             throw new GrupoYaExistenteExcep("Esa especialidad ya tiene un grupo existente");
         }
 
-        if(repositorioGrupo.existsByResponsableId(grupo.getResponsable().getId())){
-            throw new GrupoYaExistenteExcep("Ese responsable ya es planificador de otro grupo existente");
-        }
+        Usuario responsable = buscarUsuario(idResponsable);
+        Grupo grupo = new Grupo(nombre, especialidad);
+
+        comprobarPuedeSerResponsable(grupo, responsable);
+        grupo.asignarResponsable(responsable);
 
         return repositorioGrupo.save(grupo);
     }
@@ -46,11 +64,7 @@ public class ServicioGrupo {
         Grupo grupo = buscarGrupo(idGrupo);
         Usuario medico = buscarUsuario(idMedico);
 
-        // Un médico solo puede pertenecer a un grupo
-        if (!grupo.getMiembros().contains(medico) && repositorioGrupo.existsByMiembrosId(idMedico)) {
-            throw new MedicoYaEnGrupoExcep("El medico ya pertenece a otro grupo");
-        }
-
+        comprobarNoEstaEnOtroGrupo(grupo, medico);
         grupo.anadirMiembro(medico);
         return grupo;
     }
@@ -74,20 +88,19 @@ public class ServicioGrupo {
     }
 
     @Transactional
-    public void cambiarPlanificador(Long idGrupo,Long idNuevo){
-        if(!repositorioUsuario.existsById(idNuevo)){
-            throw new UsuarioNoExisteExcep("El usuario no existe");
+    public Grupo cambiarPlanificador(Long idGrupo, Long idNuevo){
+        Grupo grupo = buscarGrupo(idGrupo);
+        Usuario nuevoPlan = buscarUsuario(idNuevo);
+
+        if(nuevoPlan.equals(grupo.getResponsable())){
+            return grupo;
         }
 
-        if(!repositorioGrupo.existsById(idGrupo)){
-            throw new GrupoNoEncontradoExcep("El grupo no existe");
-        }
-
-        Usuario nuevoPlan = repositorioUsuario.findById(idNuevo).get();
-        Grupo grupo = repositorioGrupo.findById(idGrupo).get();
-
+        comprobarPuedeSerResponsable(grupo, nuevoPlan);
         grupo.asignarResponsable(nuevoPlan);
 
-        repositorioGrupo.save(grupo);
+        return grupo;
     }
+
+
 }

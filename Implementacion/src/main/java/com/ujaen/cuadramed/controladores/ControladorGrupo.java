@@ -20,7 +20,7 @@ public class ControladorGrupo {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping("/alta")
     public ResponseEntity<GrupoDTO> altaGrupo(@Valid @RequestBody AltaGrupoDTO peticion){
-        Grupo grupo = servicioGrupo.anadirGrupo(new Grupo(peticion.nombre(), peticion.especialidad(),peticion.responsable()));
+        Grupo grupo = servicioGrupo.crearGrupo(peticion.nombre(), peticion.especialidad(), peticion.idResponsable());
         return ResponseEntity.ok(GrupoDTO.desde(grupo));
     }
 
@@ -31,12 +31,11 @@ public class ControladorGrupo {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('PLANIFICADOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/{idGrupo}/responsable/{idUsuario}")
-    public ResponseEntity<Void> cambiarResponsable(@PathVariable Long idGrupo,@PathVariable Long idUsuario){
-        servicioGrupo.cambiarPlanificador(idGrupo,idUsuario);
-
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<GrupoDTO> cambiarResponsable(@PathVariable Long idGrupo,@PathVariable Long idUsuario){
+        Grupo grupo = servicioGrupo.cambiarPlanificador(idGrupo,idUsuario);
+        return ResponseEntity.ok(GrupoDTO.desde(grupo));
     }
 
 

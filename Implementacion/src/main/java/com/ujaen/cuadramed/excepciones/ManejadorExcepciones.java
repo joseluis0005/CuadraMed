@@ -2,6 +2,7 @@ package com.ujaen.cuadramed.excepciones;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -28,21 +29,32 @@ public class ManejadorExcepciones {
                 .body(Map.of("error", e.getMessage()));
     }
 
-    @ExceptionHandler({GrupoNoEncontradoExcep.class, MedicoNoEnGrupoExcep.class})
+    @ExceptionHandler({GrupoNoEncontradoExcep.class, MedicoNoEnGrupoExcep.class, UsuarioNoExisteExcep.class})
     public ResponseEntity<Map<String, String>> grupoNoEncontrado(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", e.getMessage()));
     }
 
-    @ExceptionHandler({GrupoYaExistenteExcep.class, MedicoYaEnGrupoExcep.class})
+    @ExceptionHandler({GrupoYaExistenteExcep.class, MedicoYaEnGrupoExcep.class,
+            ResponsableYaAsignadoExcep.class, ExpulsionDePlanificadorExcep.class})
     public ResponseEntity<Map<String, String>> conflictoGrupo(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", e.getMessage()));
     }
 
-    @ExceptionHandler(UsuarioNoEsMedicoExcep.class)
-    public ResponseEntity<Map<String, String>> usuarioNoEsMedico(UsuarioNoEsMedicoExcep e) {
+    @ExceptionHandler({UsuarioNoEsMedicoExcep.class, UsuarioNoEsPlanificadorExcep.class, MedicoNoActivoExcep.class})
+    public ResponseEntity<Map<String, String>> peticionNoValidaGrupo(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", e.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> datosNoValidos(MethodArgumentNotValidException e) {
+        String mensaje = e.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(error -> error.getDefaultMessage())
+                .orElse("Datos no validos");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", mensaje));
     }
 }

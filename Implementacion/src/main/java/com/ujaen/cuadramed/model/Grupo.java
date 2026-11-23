@@ -2,7 +2,6 @@ package com.ujaen.cuadramed.model;
 
 import com.ujaen.cuadramed.excepciones.*;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -28,8 +27,8 @@ public class Grupo {
     @JoinColumn(name = "grupo_id")
     List<Usuario> miembros = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "responsable_id", unique = true)
+    @OneToOne(optional = false)
+    @JoinColumn(name = "responsable_id", nullable = false, unique = true)
     @Setter(AccessLevel.NONE)
     Usuario responsable;
 
@@ -39,13 +38,13 @@ public class Grupo {
 
     public Grupo(){}
 
-    public Grupo(String nombre,Especialidad especialidad, Usuario responsable){
+
+    public Grupo(String nombre,Especialidad especialidad){
         this.nombre = nombre;
         this.especialidad = especialidad;
-        this.responsable = responsable;
     }
 
-    public void anadirMiembro(@Valid Usuario medico) {
+    public void anadirMiembro(Usuario medico) {
         if (!medico.getRoles().contains(Rol.MEDICO)) {
             throw new UsuarioNoEsMedicoExcep("El usuario que se quiere introducir en el grupo no es medico");
         }
@@ -61,7 +60,7 @@ public class Grupo {
         miembros.add(medico);
     }
 
-    public void quitarMiembro(@Valid Usuario medico) {
+    public void quitarMiembro(Usuario medico) {
         if(medico.equals(responsable)){
             throw new ExpulsionDePlanificadorExcep("No se puede expulsar del grupo al planificador");
         }
@@ -71,7 +70,7 @@ public class Grupo {
         }
     }
 
-    public void asignarResponsable(@Valid Usuario responsableP){
+    public void asignarResponsable(Usuario responsableP){
         if(!responsableP.getRoles().contains(Rol.PLANIFICADOR)){
             throw new UsuarioNoEsPlanificadorExcep("El usuario no es un planificador");
         }
