@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -57,13 +58,15 @@ public class ControladorGrupo {
 
     @PreAuthorize("hasRole('PLANIFICADOR')")
     @PostMapping("/{id}/miembros/{idMedico}")
-    public ResponseEntity<GrupoDTO> anadirMiembro(@PathVariable Long id, @PathVariable Long idMedico){
-        return ResponseEntity.ok(GrupoDTO.desde(servicioGrupo.anadirMiembro(id, idMedico)));
+    public ResponseEntity<GrupoDTO> anadirMiembro(@PathVariable Long id, @PathVariable Long idMedico,
+                                                  @AuthenticationPrincipal String email){
+        return ResponseEntity.ok(GrupoDTO.desde(servicioGrupo.anadirMiembro(id, idMedico, email)));
     }
 
     @PreAuthorize("hasRole('PLANIFICADOR')")
     @DeleteMapping("/{id}/miembros/{idMedico}")
-    public ResponseEntity<GrupoDTO> quitarMiembro(@PathVariable Long id, @PathVariable Long idMedico){
-        return ResponseEntity.ok(GrupoDTO.desde(servicioGrupo.quitarMiembro(id, idMedico)));
+    public ResponseEntity<GrupoDTO> quitarMiembro(@PathVariable Long id, @PathVariable Long idMedico,
+                                                  @AuthenticationPrincipal String email){
+        return ResponseEntity.ok(GrupoDTO.desde(servicioGrupo.quitarMiembro(id, idMedico, email)));
     }
 }

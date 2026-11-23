@@ -48,6 +48,12 @@ public class ManejadorExcepciones {
                 .body(Map.of("error", e.getMessage()));
     }
 
+    @ExceptionHandler(AccesoGrupoDenegadoExcep.class)
+    public ResponseEntity<Map<String, String>> accesoGrupoDenegado(AccesoGrupoDenegadoExcep e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("error", e.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> datosNoValidos(MethodArgumentNotValidException e) {
         String mensaje = e.getBindingResult().getFieldErrors().stream()

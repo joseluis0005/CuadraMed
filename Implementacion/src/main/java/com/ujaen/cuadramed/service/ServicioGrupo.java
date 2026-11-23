@@ -28,6 +28,12 @@ public class ServicioGrupo {
         comprobarNoEstaEnOtroGrupo(grupo, usuario);
     }
 
+    private void comprobarEsResponsable(Grupo grupo, String emailUsuario) {
+        if (!grupo.getResponsable().getEmail().equals(emailUsuario)) {
+            throw new AccesoGrupoDenegadoExcep("Solo el responsable del grupo puede gestionar sus miembros");
+        }
+    }
+
     private void comprobarNoEstaEnOtroGrupo(Grupo grupo, Usuario medico){
         if(!grupo.getMiembros().contains(medico) && repositorioGrupo.existsByMiembrosId(medico.getId())){
             throw new MedicoYaEnGrupoExcep("El medico ya pertenece a otro grupo");
@@ -59,21 +65,25 @@ public class ServicioGrupo {
                 .orElseThrow(() -> new GrupoNoEncontradoExcep("No se encontro el grupo buscado"));
     }
 
+    // El permiso se comprueba lo primero: a quien no es el responsable no se le da
+    // ninguna información del grupo (ni si el médico existe ni si está en otro grupo)
     @Transactional
-    public Grupo anadirMiembro(Long idGrupo, Long idMedico) {
+    public Grupo anadirMiembro(Long idGrupo, Long idMedico, String emailUsuario) {
         Grupo grupo = buscarGrupo(idGrupo);
-        Usuario medico = buscarUsuario(idMedico);
+        comprobarEsResponsable(grupo, emailUsuario);
 
+        Usuario medico = buscarUsuario(idMedico);
         comprobarNoEstaEnOtroGrupo(grupo, medico);
         grupo.anadirMiembro(medico);
         return grupo;
     }
 
     @Transactional
-    public Grupo quitarMiembro(Long idGrupo, Long idMedico) {
+    public Grupo quitarMiembro(Long idGrupo, Long idMedico, String emailUsuario) {
         Grupo grupo = buscarGrupo(idGrupo);
-        Usuario medico = buscarUsuario(idMedico);
+        comprobarEsResponsable(grupo, emailUsuario);
 
+        Usuario medico = buscarUsuario(idMedico);
         grupo.quitarMiembro(medico);
         return grupo;
     }

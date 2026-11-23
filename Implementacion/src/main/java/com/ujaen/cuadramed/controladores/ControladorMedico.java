@@ -25,7 +25,7 @@ public class ControladorMedico {
     @Autowired
     ServicioMedico servicioMedico;
 
-    @PreAuthorize("hasRole('PLANIFICADOR')")
+    @PreAuthorize("hasAnyRole('PLANIFICADOR','ADMINISTRADOR')")
     @PostMapping("/alta")
     public ResponseEntity<UsuarioDTO> altaMedico(@Valid @RequestBody RegistroDTO peticion){
         Usuario usuarioARegistrar = servicioAutenticacion.registro(peticion);
@@ -33,10 +33,18 @@ public class ControladorMedico {
         return ResponseEntity.ok(usuarioDTO);
     }
 
-    @PreAuthorize("hasRole('PLANIFICADOR')")
+    @PreAuthorize("hasAnyRole('PLANIFICADOR','ADMINISTRADOR')")
     @GetMapping
     public List<UsuarioDTO> listarMedicos() {
         return servicioMedico.listarMedicos().stream()
+                .map(UsuarioDTO::desde)
+                .toList();
+    }
+
+    @PreAuthorize("hasAnyRole('PLANIFICADOR','ADMINISTRADOR')")
+    @GetMapping("/activos")
+    public List<UsuarioDTO> listarMedicosActivos() {
+        return servicioMedico.listarMedicosActivos().stream()
                 .map(UsuarioDTO::desde)
                 .toList();
     }

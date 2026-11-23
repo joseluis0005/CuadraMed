@@ -36,6 +36,8 @@ class ServicioGrupoTest {
     private static final Long ID_PLANIFICADOR = 2L;
     private static final Long ID_MEDICO = 3L;
     private static final Long ID_OTRO_PLANIFICADOR = 4L;
+    private static final String EMAIL_RESPONSABLE = "ana@cuadramed.es";
+    private static final String EMAIL_OTRO_PLANIFICADOR = "laura@cuadramed.es";
 
     @Mock
     private GrupoRepository repositorioGrupo;
@@ -228,7 +230,7 @@ class ServicioGrupoTest {
         when(repositorioUsuario.findById(ID_MEDICO)).thenReturn(Optional.of(medico));
         when(repositorioGrupo.existsByMiembrosId(ID_MEDICO)).thenReturn(false);
 
-        Grupo resultado = servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO);
+        Grupo resultado = servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO, EMAIL_RESPONSABLE);
 
         assertSame(grupo, resultado);
         assertTrue(resultado.getMiembros().contains(medico));
@@ -239,7 +241,7 @@ class ServicioGrupoTest {
     void anadirMiembroAGrupoInexistenteLanzaExcepcion() {
         when(repositorioGrupo.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(GrupoNoEncontradoExcep.class, () -> servicioGrupo.anadirMiembro(99L, ID_MEDICO));
+        assertThrows(GrupoNoEncontradoExcep.class, () -> servicioGrupo.anadirMiembro(99L, ID_MEDICO, EMAIL_RESPONSABLE));
         verify(repositorioUsuario, never()).findById(anyLong());
     }
 
@@ -249,7 +251,7 @@ class ServicioGrupoTest {
         when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
         when(repositorioUsuario.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(MedicoNoEncontradoExcep.class, () -> servicioGrupo.anadirMiembro(ID_GRUPO, 99L));
+        assertThrows(MedicoNoEncontradoExcep.class, () -> servicioGrupo.anadirMiembro(ID_GRUPO, 99L, EMAIL_RESPONSABLE));
         assertEquals(1, grupo.getMiembros().size());
     }
 
@@ -260,7 +262,7 @@ class ServicioGrupoTest {
         when(repositorioUsuario.findById(ID_MEDICO)).thenReturn(Optional.of(medico));
         when(repositorioGrupo.existsByMiembrosId(ID_MEDICO)).thenReturn(true);
 
-        assertThrows(MedicoYaEnGrupoExcep.class, () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO));
+        assertThrows(MedicoYaEnGrupoExcep.class, () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO, EMAIL_RESPONSABLE));
         assertFalse(grupo.getMiembros().contains(medico));
     }
 
@@ -271,7 +273,7 @@ class ServicioGrupoTest {
         when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
         when(repositorioUsuario.findById(ID_MEDICO)).thenReturn(Optional.of(medico));
 
-        assertThrows(MedicoYaEnGrupoExcep.class, () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO));
+        assertThrows(MedicoYaEnGrupoExcep.class, () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO, EMAIL_RESPONSABLE));
         verify(repositorioGrupo, never()).existsByMiembrosId(anyLong());
         assertEquals(2, grupo.getMiembros().size());
     }
@@ -284,7 +286,7 @@ class ServicioGrupoTest {
         when(repositorioUsuario.findById(ID_MEDICO)).thenReturn(Optional.of(medico));
         when(repositorioGrupo.existsByMiembrosId(ID_MEDICO)).thenReturn(false);
 
-        assertThrows(MedicoNoActivoExcep.class, () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO));
+        assertThrows(MedicoNoActivoExcep.class, () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO, EMAIL_RESPONSABLE));
     }
 
     // ==================== quitarMiembro ====================
@@ -296,7 +298,7 @@ class ServicioGrupoTest {
         when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
         when(repositorioUsuario.findById(ID_MEDICO)).thenReturn(Optional.of(medico));
 
-        Grupo resultado = servicioGrupo.quitarMiembro(ID_GRUPO, ID_MEDICO);
+        Grupo resultado = servicioGrupo.quitarMiembro(ID_GRUPO, ID_MEDICO, EMAIL_RESPONSABLE);
 
         assertSame(grupo, resultado);
         assertFalse(resultado.getMiembros().contains(medico));
@@ -306,7 +308,7 @@ class ServicioGrupoTest {
     void quitarMiembroDeGrupoInexistenteLanzaExcepcion() {
         when(repositorioGrupo.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(GrupoNoEncontradoExcep.class, () -> servicioGrupo.quitarMiembro(99L, ID_MEDICO));
+        assertThrows(GrupoNoEncontradoExcep.class, () -> servicioGrupo.quitarMiembro(99L, ID_MEDICO, EMAIL_RESPONSABLE));
     }
 
     @Test
@@ -315,7 +317,7 @@ class ServicioGrupoTest {
         when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
         when(repositorioUsuario.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(MedicoNoEncontradoExcep.class, () -> servicioGrupo.quitarMiembro(ID_GRUPO, 99L));
+        assertThrows(MedicoNoEncontradoExcep.class, () -> servicioGrupo.quitarMiembro(ID_GRUPO, 99L, EMAIL_RESPONSABLE));
     }
 
     @Test
@@ -324,7 +326,7 @@ class ServicioGrupoTest {
         when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
         when(repositorioUsuario.findById(ID_MEDICO)).thenReturn(Optional.of(medico));
 
-        assertThrows(MedicoNoEnGrupoExcep.class, () -> servicioGrupo.quitarMiembro(ID_GRUPO, ID_MEDICO));
+        assertThrows(MedicoNoEnGrupoExcep.class, () -> servicioGrupo.quitarMiembro(ID_GRUPO, ID_MEDICO, EMAIL_RESPONSABLE));
     }
 
     @Test
@@ -333,8 +335,76 @@ class ServicioGrupoTest {
         when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
         when(repositorioUsuario.findById(ID_PLANIFICADOR)).thenReturn(Optional.of(planificador));
 
-        assertThrows(ExpulsionDePlanificadorExcep.class, () -> servicioGrupo.quitarMiembro(ID_GRUPO, ID_PLANIFICADOR));
+        assertThrows(ExpulsionDePlanificadorExcep.class, () -> servicioGrupo.quitarMiembro(ID_GRUPO, ID_PLANIFICADOR, EMAIL_RESPONSABLE));
         assertTrue(grupo.getMiembros().contains(planificador));
+    }
+
+    // ==================== Solo el responsable gestiona su grupo ====================
+
+    @Test
+    void anadirMiembroSiNoEresElResponsableLanzaAccesoDenegado() {
+        Grupo grupo = grupoConResponsable(planificador);
+        when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
+
+        assertThrows(AccesoGrupoDenegadoExcep.class,
+                () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO, EMAIL_OTRO_PLANIFICADOR));
+        assertEquals(1, grupo.getMiembros().size());
+    }
+
+    @Test
+    void anadirMiembroSinPermisoNoConsultaNadaMas() {
+        // El permiso va primero: no se revela si el médico existe o si está en otro grupo
+        Grupo grupo = grupoConResponsable(planificador);
+        when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
+
+        assertThrows(AccesoGrupoDenegadoExcep.class,
+                () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO, EMAIL_OTRO_PLANIFICADOR));
+        verify(repositorioUsuario, never()).findById(anyLong());
+        verify(repositorioGrupo, never()).existsByMiembrosId(anyLong());
+    }
+
+    @Test
+    void quitarMiembroSiNoEresElResponsableLanzaAccesoDenegado() {
+        Grupo grupo = grupoConResponsable(planificador);
+        grupo.anadirMiembro(medico);
+        when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
+
+        assertThrows(AccesoGrupoDenegadoExcep.class,
+                () -> servicioGrupo.quitarMiembro(ID_GRUPO, ID_MEDICO, EMAIL_OTRO_PLANIFICADOR));
+        assertTrue(grupo.getMiembros().contains(medico));
+        verify(repositorioUsuario, never()).findById(anyLong());
+    }
+
+    @Test
+    void elAntiguoResponsablePierdeElPermisoTrasElCambio() {
+        Grupo grupo = grupoConResponsable(planificador);
+        grupo.asignarResponsable(otroPlanificador);
+        when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
+
+        assertThrows(AccesoGrupoDenegadoExcep.class,
+                () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO, EMAIL_RESPONSABLE));
+    }
+
+    @Test
+    void elNuevoResponsablePuedeGestionarElGrupoTrasElCambio() {
+        Grupo grupo = grupoConResponsable(planificador);
+        grupo.asignarResponsable(otroPlanificador);
+        when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
+        when(repositorioUsuario.findById(ID_MEDICO)).thenReturn(Optional.of(medico));
+        when(repositorioGrupo.existsByMiembrosId(ID_MEDICO)).thenReturn(false);
+
+        Grupo resultado = servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO, EMAIL_OTRO_PLANIFICADOR);
+
+        assertTrue(resultado.getMiembros().contains(medico));
+    }
+
+    @Test
+    void sinUsuarioAutenticadoNoSePuedeGestionarElGrupo() {
+        Grupo grupo = grupoConResponsable(planificador);
+        when(repositorioGrupo.findById(ID_GRUPO)).thenReturn(Optional.of(grupo));
+
+        assertThrows(AccesoGrupoDenegadoExcep.class,
+                () -> servicioGrupo.anadirMiembro(ID_GRUPO, ID_MEDICO, null));
     }
 
     // ==================== cambiarPlanificador ====================

@@ -44,6 +44,7 @@ public class ControladorGrupoTest {
 
     private String tokenAdmin;
     private String tokenPlanificador;
+    private String tokenLaura;
     private String tokenMedico;
 
     private Long idAdmin;
@@ -56,6 +57,7 @@ public class ControladorGrupoTest {
     void setUp() throws Exception {
         tokenAdmin = tokenDe("admin@cuadramed.es", "admin123");
         tokenPlanificador = tokenDe("responsable@cuadramed.es", "resp123");
+        tokenLaura = tokenDe("responsable2@cuadramed.es", "resp123");
         tokenMedico = tokenDe("medico@cuadramed.es", "medico123");
 
         // Los ids se buscan por email para no depender del orden de inserción
@@ -100,9 +102,14 @@ public class ControladorGrupoTest {
         return ((Number) JsonPath.read(respuesta, "$.id")).longValue();
     }
 
+    // Añade un médico como Ana, que es la responsable de los grupos que crea cada test
     private void anadirMiembro(Long idGrupo, Long idMedico) throws Exception {
+        anadirMiembro(idGrupo, idMedico, tokenPlanificador);
+    }
+
+    private void anadirMiembro(Long idGrupo, Long idMedico, String token) throws Exception {
         mockMvc.perform(post("/api/grupo/{id}/miembros/{idMedico}", idGrupo, idMedico)
-                        .header("Authorization", tokenPlanificador))
+                        .header("Authorization", token))
                 .andExpect(status().isOk());
     }
 
@@ -439,7 +446,7 @@ public class ControladorGrupoTest {
         anadirMiembro(urgencias, idMarcos);
 
         mockMvc.perform(post("/api/grupo/{id}/miembros/{idMedico}", pediatria, idMarcos)
-                        .header("Authorization", tokenPlanificador))
+                        .header("Authorization", tokenLaura))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("El medico ya pertenece a otro grupo"));
     }
@@ -487,7 +494,7 @@ public class ControladorGrupoTest {
                         .header("Authorization", tokenPlanificador))
                 .andExpect(status().isOk());
 
-        anadirMiembro(pediatria, idMarcos);
+        anadirMiembro(pediatria, idMarcos, tokenLaura);
     }
 
     @Test
@@ -556,7 +563,7 @@ public class ControladorGrupoTest {
                 .andExpect(status().isOk());
 
         mockMvc.perform(delete("/api/grupo/{id}/miembros/{idMedico}", id, idAna)
-                        .header("Authorization", tokenPlanificador))
+                        .header("Authorization", tokenLaura))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.miembros[*].id", not(hasItem(idAna.intValue()))));
     }
@@ -646,6 +653,75 @@ public class ControladorGrupoTest {
         mockMvc.perform(put("/api/grupo/{id}/responsable/{idUsuario}", id, idLaura)
                         .header("Authorization", tokenPlanificador))
                 .andExpect(status().isForbidden());
+    }
+
+    // ==================== Solo el responsable gestiona su grupo ====================
+
+    @Test
+    void planificadorQueNoEsElResponsableNoPuedeAnadirMiembros() throws Exception {
+        Long id = crearGrupo("Urgencias", "URGENCIAS", idAna);
+
+        mockMvc.perform(post("/api/grupo/{id}/miembros/{idMedico}", id, idMarcos)
+                        .header("Authorization", tokenLaura))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("Solo el responsable del grupo puede gestionar sus miembros"));
+
+        mockMvc.perform(get("/api/grupo/{id}/consulta", id).header("Authorization", tokenAdmin))
+                .andExpect(jsonPath("$.miembros", hasSize(1)));
+    }
+
+    @Test
+    void planificadorQueNoEsElResponsableNoPuedeQuitarMiembros() throws Exception {
+        Long id = crearGrupo("Urgencias", "URGENCIAS", idAna);
+        anadirMiembro(id, idMarcos);
+
+        mockMvc.perform(delete("/api/grupo/{id}/miembros/{idMedico}", id, idMarcos)
+                        .header("Authorization", tokenLaura))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").exists());
+
+        mockMvc.perform(get("/api/grupo/{id}/consulta", id).header("Authorization", tokenAdmin))
+                .andExpect(jsonPath("$.miembros[*].id", hasItem(idMarcos.intValue())));
+    }
+
+    @Test
+    void planificadorAjenoRecibe403AunqueElMedicoEsteEnOtroGrupo() throws Exception {
+        // El permiso se comprueba antes: no se le revela en qué situación está el médico
+        Long urgencias = crearGrupo("Urgencias", "URGENCIAS", idAna);
+        Long pediatria = crearGrupo("Pediatría", "PEDIATRIA", idLaura);
+        anadirMiembro(urgencias, idMarcos);
+
+        mockMvc.perform(post("/api/grupo/{id}/miembros/{idMedico}", pediatria, idMarcos)
+                        .header("Authorization", tokenPlanificador))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void cadaResponsableGestionaSoloSuGrupo() throws Exception {
+        Long urgencias = crearGrupo("Urgencias", "URGENCIAS", idAna);
+        Long pediatria = crearGrupo("Pediatría", "PEDIATRIA", idLaura);
+
+        anadirMiembro(urgencias, idMarcos, tokenPlanificador);
+        anadirMiembro(pediatria, idPedro, tokenLaura);
+
+        mockMvc.perform(get("/api/grupo/{id}/consulta", urgencias).header("Authorization", tokenAdmin))
+                .andExpect(jsonPath("$.miembros[*].id", containsInAnyOrder(idAna.intValue(), idMarcos.intValue())));
+        mockMvc.perform(get("/api/grupo/{id}/consulta", pediatria).header("Authorization", tokenAdmin))
+                .andExpect(jsonPath("$.miembros[*].id", containsInAnyOrder(idLaura.intValue(), idPedro.intValue())));
+    }
+
+    @Test
+    void elAntiguoResponsablePierdeElPermisoTrasElCambio() throws Exception {
+        Long id = crearGrupo("Urgencias", "URGENCIAS", idAna);
+        mockMvc.perform(put("/api/grupo/{id}/responsable/{idUsuario}", id, idLaura)
+                        .header("Authorization", tokenAdmin))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/grupo/{id}/miembros/{idMedico}", id, idMarcos)
+                        .header("Authorization", tokenPlanificador))
+                .andExpect(status().isForbidden());
+
+        anadirMiembro(id, idMarcos, tokenLaura);
     }
 
     // ==================== Flujo completo de la HU-04 ====================
