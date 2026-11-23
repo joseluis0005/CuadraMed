@@ -1,14 +1,11 @@
 package com.ujaen.cuadramed.service;
 
-import com.ujaen.cuadramed.excepciones.GrupoNoEncontradoExcep;
-import com.ujaen.cuadramed.excepciones.GrupoYaExistenteExcep;
-import com.ujaen.cuadramed.excepciones.MedicoNoEncontradoExcep;
-import com.ujaen.cuadramed.excepciones.MedicoYaEnGrupoExcep;
+import com.ujaen.cuadramed.excepciones.*;
 import com.ujaen.cuadramed.model.Grupo;
 import com.ujaen.cuadramed.model.Usuario;
 import com.ujaen.cuadramed.repository.GrupoRepository;
 import com.ujaen.cuadramed.repository.UsuarioRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +22,10 @@ public class ServicioGrupo {
     public Grupo anadirGrupo(Grupo grupo){
         if(repositorioGrupo.existsByEspecialidad(grupo.getEspecialidad())){
             throw new GrupoYaExistenteExcep("Esa especialidad ya tiene un grupo existente");
+        }
+
+        if(repositorioGrupo.existsByResponsableId(grupo.getResponsable().getId())){
+            throw new GrupoYaExistenteExcep("Ese responsable ya es planificador de otro grupo existente");
         }
 
         return repositorioGrupo.save(grupo);
@@ -70,5 +71,23 @@ public class ServicioGrupo {
 
     public List<Grupo> getGrupos(){
         return repositorioGrupo.findAll();
+    }
+
+    @Transactional
+    public void cambiarPlanificador(Long idGrupo,Long idNuevo){
+        if(!repositorioUsuario.existsById(idNuevo)){
+            throw new UsuarioNoExisteExcep("El usuario no existe");
+        }
+
+        if(!repositorioGrupo.existsById(idGrupo)){
+            throw new GrupoNoEncontradoExcep("El grupo no existe");
+        }
+
+        Usuario nuevoPlan = repositorioUsuario.findById(idNuevo).get();
+        Grupo grupo = repositorioGrupo.findById(idGrupo).get();
+
+        grupo.asignarResponsable(nuevoPlan);
+
+        repositorioGrupo.save(grupo);
     }
 }

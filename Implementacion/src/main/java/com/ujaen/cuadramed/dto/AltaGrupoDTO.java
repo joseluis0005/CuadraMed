@@ -1,6 +1,7 @@
 package com.ujaen.cuadramed.dto;
 
 import com.ujaen.cuadramed.model.Especialidad;
+import com.ujaen.cuadramed.model.Usuario;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -9,5 +10,8 @@ public record AltaGrupoDTO(
         String nombre,
 
         @NotNull(message = "La especialidad es obligatoria")
-        Especialidad especialidad
+        Especialidad especialidad,
+
+        @NotNull(message = "El responsable es obligatorio")
+        Usuario responsable
 ) {}
