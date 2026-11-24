@@ -3,6 +3,8 @@ import axios from 'axios'
 import LoginForm from './components/LoginForm'
 import UserPanel from './components/UserPanel'
 import './App.css'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import RutaProtegida from './components/RutaProtegida'
 
 function sesionDesdeToken() {
     const token = localStorage.getItem('token')
@@ -24,6 +26,7 @@ function App() {
   const [password, setPassword] = useState('admin123')
   const [usuario, setUsuario] = useState(sesionDesdeToken)
   const [error, setError] = useState('')
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -37,6 +40,8 @@ function App() {
 
       setUsuario(respuesta.data)
       localStorage.setItem('token', respuesta.data.token)
+
+      navigate('/panel')
     } catch (err) {
       if (err.response && err.response.status === 401) {
         setError('El usuario o la contraseña no son válidos')
@@ -44,32 +49,39 @@ function App() {
         setError('Error al conectar con el servidor Spring Boot')
       }
     }
+
   }
 
   const handleLogout = () => {
     setUsuario(null)
     localStorage.removeItem('token')
+
+    navigate('/login')
   }
 
   return (
     <div style={{ maxWidth: '400px', margin: '50px auto', fontFamily: 'sans-serif' }}>
       <h2>CuadraMed - HU-01 Login</h2>
+        <Routes>
+            <Route path="/login" element={
+             <LoginForm
+                email={email}
+                setEmail={setEmail}
+                password={password}
+                setPassword={setPassword}
+                handleSubmit={handleSubmit}
+                error={error}
+            />
+                                 } />
 
-      {usuario ? (
-        <UserPanel 
-          usuario={usuario} 
-          handleLogout={handleLogout} 
-        />
-      ) : (
-        <LoginForm 
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          handleSubmit={handleSubmit}
-          error={error}
-        />
-      )}
+            <Route path="/panel" element={
+                                      <RutaProtegida usuario={usuario}>
+                                         <UserPanel usuario={usuario} handleLogout={handleLogout} />
+                                     </RutaProtegida>
+                                 } />
+
+            <Route path="*" element={<Navigate to="/panel" />} />
+        </Routes>
     </div>
   )
 }
