@@ -4,10 +4,25 @@ import LoginForm from './components/LoginForm'
 import UserPanel from './components/UserPanel'
 import './App.css'
 
+function sesionDesdeToken() {
+    const token = localStorage.getItem('token')
+    if (!token) return null
+
+    const trozoDatos = token.split('.')[1]
+    const datos = JSON.parse(atob(trozoDatos.replace(/-/g, '+').replace(/_/g, '/')))
+
+    if (datos.exp * 1000 < Date.now()) {
+        localStorage.removeItem('token')
+        return null
+    }
+
+    return { id: datos.id, rol: datos.roles, token }
+}
+
 function App() {
   const [email, setEmail] = useState('admin@cuadramed.es')
   const [password, setPassword] = useState('admin123')
-  const [usuario, setUsuario] = useState(null)
+  const [usuario, setUsuario] = useState(sesionDesdeToken)
   const [error, setError] = useState('')
 
   const handleSubmit = async (e) => {
