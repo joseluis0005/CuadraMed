@@ -5,6 +5,7 @@ import UserPanel from './components/UserPanel'
 import './App.css'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import RutaProtegida from './components/RutaProtegida'
+import PaginaGrupo from "./pages/PaginaGrupos.jsx";
 
 function sesionDesdeToken() {
     const token = localStorage.getItem('token')
@@ -81,6 +82,13 @@ function App() {
                                  } />
 
             <Route path="*" element={<Navigate to="/panel" />} />
+
+            <Route path='/grupos' element={
+                                       <RutaProtegida usuario={usuario}>
+                                          <PaginaGrupo/>
+                                       </RutaProtegida>
+                                  }/>
+
         </Routes>
     </div>
   )

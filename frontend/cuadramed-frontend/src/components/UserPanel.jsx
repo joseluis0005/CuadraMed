@@ -1,3 +1,6 @@
+import cliente from "../api/cliente.js";
+import {Link} from "react-router-dom";
+
 export default function UserPanel({ usuario, handleLogout }) {
   return (
     <div style={{ backgroundColor: '#e6fffa', padding: '15px', borderRadius: '8px' }}>
@@ -13,6 +16,15 @@ export default function UserPanel({ usuario, handleLogout }) {
       >
         Cerrar Sesión
       </button>
+
+        <button onClick={async () => {
+            const respuesta = await cliente.get('/grupo')
+            console.log(respuesta.data)
+        }}>
+            Probar
+        </button>
+
+        <Link to="/grupos">Ver grupos</Link>
     </div>
   )
 }
