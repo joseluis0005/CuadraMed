@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ServicioGrupo {
@@ -111,5 +112,14 @@ public class ServicioGrupo {
         return grupo;
     }
 
+    public List<Usuario> obtenerUsuariosGrupo(Long idGrupo){
+        Optional<Grupo> grupo = repositorioGrupo.findById(idGrupo);
+
+        if(!grupo.isPresent()){
+            throw new GrupoNoEncontradoExcep("El grupo no se ha encontrado");
+        }
+
+        return grupo.get().getMiembros();
+    }
 
 }

@@ -2,7 +2,9 @@ package com.ujaen.cuadramed.controladores;
 
 import com.ujaen.cuadramed.dto.AltaGrupoDTO;
 import com.ujaen.cuadramed.dto.GrupoDTO;
+import com.ujaen.cuadramed.dto.UsuarioDTO;
 import com.ujaen.cuadramed.model.Grupo;
+import com.ujaen.cuadramed.model.Usuario;
 import com.ujaen.cuadramed.service.ServicioGrupo;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -39,8 +43,6 @@ public class ControladorGrupo {
         return ResponseEntity.ok(GrupoDTO.desde(grupo));
     }
 
-
-
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','PLANIFICADOR')")
     @GetMapping
     public ResponseEntity<List<GrupoDTO>> listarGrupos() {
@@ -69,4 +71,15 @@ public class ControladorGrupo {
                                                   @AuthenticationPrincipal String email){
         return ResponseEntity.ok(GrupoDTO.desde(servicioGrupo.quitarMiembro(id, idMedico, email)));
     }
+
+    @PreAuthorize("hasRole('PLANIFICADOR')")
+    @GetMapping("/{idGrupo}/miembros")
+    public ResponseEntity<List<UsuarioDTO>> listarUsuariosDeGrupo(@PathVariable Long idGrupo){
+        List<UsuarioDTO> lista = new ArrayList<>();
+        for (Usuario user : servicioGrupo.obtenerUsuariosGrupo(idGrupo)){
+            lista.add(UsuarioDTO.desde(user));
+        }
+        return ResponseEntity.ok(lista);
+    }
+
 }
