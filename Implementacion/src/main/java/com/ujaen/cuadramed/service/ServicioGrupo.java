@@ -65,8 +65,7 @@ public class ServicioGrupo {
                 .orElseThrow(() -> new GrupoNoEncontradoExcep("No se encontro el grupo buscado"));
     }
 
-    // El permiso se comprueba lo primero: a quien no es el responsable no se le da
-    // ninguna información del grupo (ni si el médico existe ni si está en otro grupo)
+
     @Transactional
     public Grupo anadirMiembro(Long idGrupo, Long idMedico, String emailUsuario) {
         Grupo grupo = buscarGrupo(idGrupo);
